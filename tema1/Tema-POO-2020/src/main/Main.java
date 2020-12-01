@@ -6,6 +6,7 @@ import common.Constants;
 import fileio.Input;
 import fileio.InputLoader;
 import fileio.Writer;
+import implementation.Implementation;
 import org.json.simple.JSONArray;
 
 import java.io.File;
@@ -71,6 +72,18 @@ public final class Main {
         JSONArray arrayResult = new JSONArray();
 
         //TODO add here the entry point to your implementation
+
+        Implementation implementation = new Implementation();
+
+        implementation.populateActorList(input);
+        implementation.populateActionList(input);
+        implementation.populateMovieList(input);
+        implementation.populateShowList(input);
+        implementation.populateUserList(input);
+
+        System.out.println(implementation.userList.get(2).getHistory());
+
+        //arrayResult.add(fileWriter.writeFile(1, "field", "mesaj test"));
 
         fileWriter.closeJSON(arrayResult);
     }
