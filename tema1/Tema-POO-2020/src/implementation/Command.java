@@ -16,9 +16,7 @@ import java.util.Map;
  */
 public class Command {
 
-    public Command() {
-
-    }
+    //public Command() {}
 
     // Favorite command
     public JSONObject Favorite (Writer filewriter, ActionInputData action,
