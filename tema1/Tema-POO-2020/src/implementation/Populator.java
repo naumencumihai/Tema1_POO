@@ -1,7 +1,6 @@
 package implementation;
 
 import fileio.*;
-import org.jetbrains.annotations.NotNull;
 import user.User;
 import video.Movie;
 import video.Show;
@@ -9,24 +8,25 @@ import video.Show;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Implementation {
+/**
+    A functional class that populates 5 lists
+    for actors, actions, videos (movies and shows) and users
+*/
+public class Populator {
     public List<ActorInputData> actorList =  new ArrayList<>();
     public List<ActionInputData> actionList = new ArrayList<>();
     public List<Movie> movieList = new ArrayList<>();
     public List<Show> showList = new ArrayList<>();
     public List<User> userList = new ArrayList<>();
 
-    public Implementation() {}
+    public Populator() {}
 
-    public void populateActorList(Input input) {
+    public void populateLists(Input input) {
+        // Populates actors list
         actorList.addAll(input.getActors());
-    }
-
-    public void populateActionList(Input input) {
+        // Populates actions list
         actionList.addAll(input.getCommands());
-    }
-
-    public void populateMovieList(Input input) {
+        // Populates movies list
         for(int i = 0; i < input.getMovies().size(); i++) {
             Movie movie = new Movie();
             MovieInputData input_movie = input.getMovies().get(i);
@@ -39,9 +39,7 @@ public class Implementation {
 
             movieList.add(i, movie);
         }
-    }
-
-    public void populateShowList(Input input) {
+        // Populates shows list
         for(int i = 0; i < input.getSerials().size(); i++) {
             Show show = new Show();
             SerialInputData input_show = input.getSerials().get(i);
@@ -55,9 +53,7 @@ public class Implementation {
 
             showList.add(i, show);
         }
-    }
-
-    public void populateUserList(Input input) {
+        // Populates users list
         for(int i = 0; i < input.getUsers().size(); i++) {
             User user = new User();
             UserInputData input_user = input.getUsers().get(i);

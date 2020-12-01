@@ -6,7 +6,7 @@ import common.Constants;
 import fileio.Input;
 import fileio.InputLoader;
 import fileio.Writer;
-import implementation.Implementation;
+import implementation.Populator;
 import org.json.simple.JSONArray;
 
 import java.io.File;
@@ -73,15 +73,11 @@ public final class Main {
 
         //TODO add here the entry point to your implementation
 
-        Implementation implementation = new Implementation();
+        Populator populator = new Populator();
 
-        implementation.populateActorList(input);
-        implementation.populateActionList(input);
-        implementation.populateMovieList(input);
-        implementation.populateShowList(input);
-        implementation.populateUserList(input);
+        populator.populateLists(input);
 
-        System.out.println(implementation.userList.get(2).getHistory());
+        System.out.println(populator.userList.get(2).getHistory());
 
         //arrayResult.add(fileWriter.writeFile(1, "field", "mesaj test"));
 
