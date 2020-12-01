@@ -1,6 +1,7 @@
 package user;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 public class User {
@@ -13,14 +14,15 @@ public class User {
 
     private ArrayList<String> favoriteMovies;
 
-    private Map<String, Integer> ratings;
+    private Map<String, Double> ratings;
 
     public User() {
+        this.ratings = new HashMap<>();
     }
 
     public User(String username, String subscriptionType,
                     Map<String, Integer> history, ArrayList<String> favoriteMovies,
-                    Map<String, Integer> ratings) {
+                    Map<String, Double> ratings) {
         this.username = username;
         this.subscriptionType = subscriptionType;
         this.history = history;
@@ -60,11 +62,20 @@ public class User {
         this.favoriteMovies = favoriteMovies;
     }
 
-    public Map<String, Integer> getRatings() {
+    public Map<String, Double> getRatings() {
         return ratings;
     }
 
-    public void setRatings(Map<String, Integer> ratings) {
+    public void setRatings(Map<String, Double> ratings) {
         this.ratings = ratings;
     }
+
+    public void addFavoriteMovie(String title) {
+        this.favoriteMovies.add(title);
+    }
+
+    public void addRating(String title, Double rating) {
+        this.ratings.put(title, rating);
+    }
+
 }

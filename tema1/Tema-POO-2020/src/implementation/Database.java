@@ -6,20 +6,38 @@ import video.Movie;
 import video.Show;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
-    A functional class that populates 5 lists
-    for actors, actions, videos (movies and shows) and users
-*/
-public class Populator {
-    public List<ActorInputData> actorList =  new ArrayList<>();
-    public List<ActionInputData> actionList = new ArrayList<>();
-    public List<Movie> movieList = new ArrayList<>();
-    public List<Show> showList = new ArrayList<>();
-    public List<User> userList = new ArrayList<>();
+ * A database class that contains Lists for
+ * Actors, Actions, Users and Videos (Movies and TV Shows)
+ */
+public class Database {
+        public List<ActorInputData> actorList;
+        public List<ActionInputData> actionList;
+        public List<Movie> movieList;
+        public List<Show> showList;
+        public List<User> userList;
 
-    public Populator() {}
+        public Map<String, ActorInputData> actorMap;
+        public Map<String, Movie> movieMap;
+        public Map<String, Show> showMap;
+        public Map<String, User> userMap;
+
+        public Database() {
+            actorList = new ArrayList<>();
+            actionList = new ArrayList<>();
+            movieList = new ArrayList<>();
+            showList = new ArrayList<>();
+            userList = new ArrayList<>();
+
+            actorMap = new HashMap<>();
+            movieMap = new HashMap<>();
+            showMap = new HashMap<>();
+            userMap = new HashMap<>();
+        }
 
     public void populateLists(Input input) {
         // Populates actors list
@@ -65,5 +83,20 @@ public class Populator {
 
             userList.add(i, user);
         }
+    }
+
+    public void createMaps() {
+            for (ActorInputData actor : actorList) {
+                actorMap.put(actor.getName(), actor);
+            }
+            for (Movie movie : movieList) {
+                movieMap.put(movie.getTitle(), movie);
+            }
+            for (Show show : showList) {
+                showMap.put(show.getTitle(), show);
+            }
+            for (User user : userList) {
+                userMap.put(user.getUsername(), user);
+            }
     }
 }

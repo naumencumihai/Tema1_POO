@@ -6,7 +6,8 @@ import common.Constants;
 import fileio.Input;
 import fileio.InputLoader;
 import fileio.Writer;
-import implementation.Populator;
+import implementation.Database;
+import implementation.Implementation;
 import org.json.simple.JSONArray;
 
 import java.io.File;
@@ -73,13 +74,13 @@ public final class Main {
 
         //TODO add here the entry point to your implementation
 
-        Populator populator = new Populator();
+        Database database = new Database();
+        Implementation implementation = new Implementation();
 
-        populator.populateLists(input);
+        database.populateLists(input);
+        database.createMaps();
 
-        System.out.println(populator.userList.get(2).getHistory());
-
-        //arrayResult.add(fileWriter.writeFile(1, "field", "mesaj test"));
+        implementation.Implementaion(fileWriter, database, arrayResult);
 
         fileWriter.closeJSON(arrayResult);
     }

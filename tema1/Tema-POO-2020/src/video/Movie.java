@@ -10,6 +10,7 @@ public class Movie extends Video {
     private List<Double> ratings;
 
     public Movie() {
+        ratings = new ArrayList<>();
     }
 
     public Movie(String title, int year, ArrayList<String> genres, ArrayList<String> cast, int duration, List<Double> ratings) {
@@ -32,5 +33,9 @@ public class Movie extends Video {
 
     public void setRatings(List<Double> ratings) {
         this.ratings = ratings;
+    }
+
+    public void addRating(Double rating) {
+        this.ratings.add(rating);
     }
 }
