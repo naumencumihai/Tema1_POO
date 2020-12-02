@@ -3,7 +3,7 @@ package video;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Movie extends Video {
+public final class Movie extends Video {
 
     private int duration;
 
@@ -13,7 +13,9 @@ public class Movie extends Video {
         ratings = new ArrayList<>();
     }
 
-    public Movie(String title, int year, ArrayList<String> genres, ArrayList<String> cast, int duration, List<Double> ratings) {
+    public Movie(final String title, final  int year, final  ArrayList<String> genres,
+                 final ArrayList<String> cast, final  int duration,
+                 final List<Double> ratings) {
         super(title, year, genres, cast);
         this.duration = duration;
         this.ratings = ratings;
@@ -23,7 +25,7 @@ public class Movie extends Video {
         return duration;
     }
 
-    public void setDuration(int duration) {
+    public void setDuration(final int duration) {
         this.duration = duration;
     }
 
@@ -31,21 +33,29 @@ public class Movie extends Video {
         return ratings;
     }
 
-    public void setRatings(List<Double> ratings) {
+    public void setRatings(final List<Double> ratings) {
         this.ratings = ratings;
     }
 
-    public void addRating(Double rating) {
+    /**
+     * Rating
+     * @param rating
+     */
+    public void addRating(final Double rating) {
         this.ratings.add(rating);
     }
 
+    /**
+     * Return average of ratings
+     * @return
+     */
     public double getRating() {
         double rating = 0.0;
 
         if (ratings.size() != 0) {
-            for (double r : ratings)
+            for (double r : ratings) {
                 rating += r;
-
+            }
             rating /= ratings.size();
         }
         return rating;

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class User {
+public final class User {
 
     private String username;
 
@@ -20,9 +20,10 @@ public class User {
         this.ratings = new HashMap<>();
     }
 
-    public User(String username, String subscriptionType,
-                    Map<String, Integer> history, ArrayList<String> favoriteMovies,
-                    Map<String, Double> ratings) {
+    public User(final String username, final String subscriptionType,
+                final Map<String, Integer> history,
+                final ArrayList<String> favoriteMovies,
+                final Map<String, Double> ratings) {
         this.username = username;
         this.subscriptionType = subscriptionType;
         this.history = history;
@@ -34,15 +35,11 @@ public class User {
         return username;
     }
 
-    public void setUsername(String username) {
+    public void setUsername(final String username) {
         this.username = username;
     }
 
-    public String getSubscriptionType() {
-        return subscriptionType;
-    }
-
-    public void setSubscriptionType(String subscriptionType) {
+    public void setSubscriptionType(final String subscriptionType) {
         this.subscriptionType = subscriptionType;
     }
 
@@ -50,7 +47,7 @@ public class User {
         return history;
     }
 
-    public void setHistory(Map<String, Integer> history) {
+    public void setHistory(final Map<String, Integer> history) {
         this.history = history;
     }
 
@@ -58,7 +55,7 @@ public class User {
         return favoriteMovies;
     }
 
-    public void setFavoriteMovies(ArrayList<String> favoriteMovies) {
+    public void setFavoriteMovies(final ArrayList<String> favoriteMovies) {
         this.favoriteMovies = favoriteMovies;
     }
 
@@ -66,16 +63,24 @@ public class User {
         return ratings;
     }
 
-    public void setRatings(Map<String, Double> ratings) {
+    public void setRatings(final Map<String, Double> ratings) {
         this.ratings = ratings;
     }
 
-    public void addFavoriteMovie(String title) {
+    /**
+     * Adds a favorite Movie
+     * @param title
+     */
+    public void addFavoriteMovie(final String title) {
         this.favoriteMovies.add(title);
     }
 
-    public void addRating(String title, Double rating) {
+    /**
+     * Adds a rating
+     * @param title
+     * @param rating
+     */
+    public void addRating(final String title, final Double rating) {
         this.ratings.put(title, rating);
     }
-
 }

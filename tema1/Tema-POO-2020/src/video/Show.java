@@ -5,7 +5,7 @@ import entertainment.Season;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Show extends Video{
+public final class Show extends Video {
 
     private int numberofSeasons;
 
@@ -14,7 +14,9 @@ public class Show extends Video{
     public Show() {
     }
 
-    public Show(String title, int year, ArrayList<String> genres, ArrayList<String> cast, int numberofSeasons, List<Season> seasons) {
+    public Show(final String title, final int year, final ArrayList<String> genres,
+               final ArrayList<String> cast, final int numberofSeasons,
+               final List<Season> seasons) {
         super(title, year, genres, cast);
         this.numberofSeasons = numberofSeasons;
         this.seasons = seasons;
@@ -24,7 +26,7 @@ public class Show extends Video{
         return numberofSeasons;
     }
 
-    public void setNumberofSeasons(int numberofSeasons) {
+    public void setNumberofSeasons(final int numberofSeasons) {
         this.numberofSeasons = numberofSeasons;
     }
 
@@ -32,20 +34,24 @@ public class Show extends Video{
         return seasons;
     }
 
-    public void setSeasons(List<Season> seasons) {
+    public void setSeasons(final List<Season> seasons) {
         this.seasons = seasons;
     }
 
-    public double getRating () {
+    /**
+     * Returns average of ratings
+     * @return
+     */
+    public double getRating() {
         double rating = 0.0;
             for (Season s : this.getSeasons()) {
-                double season_rating = 0.0;
+                double seasonRating = 0.0;
                 if (s.getRatings().size() != 0) {
                     for (double r : s.getRatings()) {
-                        season_rating += r;
+                        seasonRating += r;
                     }
-                    season_rating /= s.getRatings().size();
-                    rating += season_rating;
+                    seasonRating /= s.getRatings().size();
+                    rating += seasonRating;
                 }
             }
             rating /= this.getNumberofSeasons();

@@ -72,15 +72,13 @@ public final class Main {
         Writer fileWriter = new Writer(filePath2);
         JSONArray arrayResult = new JSONArray();
 
-        //TODO add here the entry point to your implementation
-
         Database database = new Database();
         Implementation implementation = new Implementation();
 
         database.populateLists(input);
         database.createMaps();
 
-        implementation.Implementaion(fileWriter, database, arrayResult);
+        implementation.implementaion(fileWriter, database, arrayResult);
 
         fileWriter.closeJSON(arrayResult);
     }

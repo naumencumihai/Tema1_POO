@@ -12,7 +12,12 @@ import org.json.simple.JSONObject;
 import video.Movie;
 import video.Show;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.HashMap;
+import java.util.Comparator;
 
 /**
  * The class contains static methods that helps with parsing.
@@ -128,10 +133,15 @@ public final class Utils {
         return mapVideos;
     }
 
-    // Filters movies by year and genre
-    public static List<Movie> FilterMovies (List<Movie> videos,
-                                      ActionInputData action) {
-        List<Movie> filtered_by_year = new ArrayList<>();
+    /**
+     * Filters movies by year and genre
+     * @param videos
+     * @param action
+     * @return
+     */
+    public static List<Movie> filterMovies(final List<Movie> videos,
+                                      final ActionInputData action) {
+        List<Movie> filteredByYear = new ArrayList<>();
         List<Movie> filtered = new ArrayList<>();
 
         List<String> year = action.getFilters().get(0);
@@ -139,61 +149,78 @@ public final class Utils {
 
         if (year.get(0) != null) {
             for (Movie video : videos) {
-                if (year.get(0).equals(Integer.toString(video.getYear())))
-                    filtered_by_year.add(video);
+                if (year.get(0).equals(Integer.toString(video.getYear()))) {
+                    filteredByYear.add(video);
+                }
             }
+        } else {
+            filteredByYear.addAll(videos);
         }
-        else
-            filtered_by_year.addAll(videos);
 
-        if (genre.get(0) != null)
-            for (Movie video : filtered_by_year) {
-                if (video.getGenres().containsAll(genre))
+        if (genre.get(0) != null) {
+            for (Movie video : filteredByYear) {
+                if (video.getGenres().containsAll(genre)) {
                     filtered.add(video);
+                }
             }
-        else
-            filtered.addAll(filtered_by_year);
+        } else {
+            filtered.addAll(filteredByYear);
+        }
 
         return filtered;
     }
 
-    // Filters Shows by year and genre
-    public static List<Show> FilterShows (List<Show> videos,
-                                    ActionInputData action) {
-        List<Show> filtered_by_year = new ArrayList<>();
+    /**
+     * Filters Shows by year and genre
+     * @param videos
+     * @param action
+     * @return
+     */
+    public static List<Show> filterShows(final List<Show> videos,
+                                    final ActionInputData action) {
+        List<Show> filteredByYear = new ArrayList<>();
         List<Show> filtered = new ArrayList<>();
 
         List<String> year = action.getFilters().get(0);
         List<String> genre = action.getFilters().get(1);
 
-        if (year.get(0) != null)
+        if (year.get(0) != null) {
             for (Show video : videos) {
-                if (year.get(0).equals(Integer.toString(video.getYear())))
-                    filtered_by_year.add(video);
+                if (year.get(0).equals(Integer.toString(video.getYear()))) {
+                    filteredByYear.add(video);
+                }
             }
-        else
-            filtered_by_year.addAll(videos);
+        } else {
+            filteredByYear.addAll(videos);
+        }
 
-        if (genre != null)
-            for (Show video : filtered_by_year) {
-                if (video.getGenres().containsAll(genre))
+        if (genre != null) {
+            for (Show video : filteredByYear) {
+                if (video.getGenres().containsAll(genre)) {
                     filtered.add(video);
+                }
             }
-        else
-            filtered.addAll(filtered_by_year);
+        } else {
+            filtered.addAll(filteredByYear);
+        }
 
         return filtered;
     }
 
-    // Method to sort hashmap by values
-    public static HashMap<String, Integer> sortByValueInteger(Map<String, Integer> map, String order) {
+    /**
+     * Method to sort hashmap by values
+     * @param map
+     * @param order
+     * @return
+     */
+    public static HashMap<String, Integer> sortByValueInteger(final Map<String, Integer> map,
+                                                              final String order) {
         if (order.equals("asc")) {
             LinkedHashMap<String, Integer> sortedMap = new LinkedHashMap<>();
             map.entrySet().stream().sorted(Map.Entry.comparingByValue())
                     .forEachOrdered(x -> sortedMap.put(x.getKey(), x.getValue()));
             return sortedMap;
-        }
-        else if (order.equals("desc")) {
+        } else if (order.equals("desc")) {
             LinkedHashMap<String, Integer> reverseSortedMap = new LinkedHashMap<>();
             map.entrySet().stream().sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
                     .forEachOrdered(x -> reverseSortedMap.put(x.getKey(), x.getValue()));
@@ -202,15 +229,20 @@ public final class Utils {
         return (HashMap<String, Integer>) map;
     }
 
-    // Method to sort hashmap by keys
-    public static HashMap<String, Integer> sortByKeyInteger(Map<String, Integer> map, String order) {
+    /**
+     * Method to sort hashmap by keys
+     * @param map
+     * @param order
+     * @return
+     */
+    public static HashMap<String, Integer> sortByKeyInteger(final Map<String, Integer> map,
+                                                            final String order) {
         if (order.equals("asc")) {
             LinkedHashMap<String, Integer> sortedMap = new LinkedHashMap<>();
             map.entrySet().stream().sorted(Map.Entry.comparingByKey())
                     .forEachOrdered(x -> sortedMap.put(x.getKey(), x.getValue()));
             return sortedMap;
-        }
-        else if (order.equals("desc")) {
+        } else if (order.equals("desc")) {
             LinkedHashMap<String, Integer> reverseSortedMap = new LinkedHashMap<>();
             map.entrySet().stream().sorted(Map.Entry.comparingByKey(Comparator.reverseOrder()))
                     .forEachOrdered(x -> reverseSortedMap.put(x.getKey(), x.getValue()));
@@ -219,14 +251,21 @@ public final class Utils {
         return (HashMap<String, Integer>) map;
     }
 
-    public static HashMap<String, Double> sortByValueDouble(Map<String, Double> map, String order) {
+    /**
+     * Method to sort hashmap by values
+     * @param map
+     * @param order
+     * @return
+     */
+    public static HashMap<String, Double> sortByValueDouble(final Map<String, Double> map,
+                                                            final String order) {
         if (order.equals("asc")) {
             LinkedHashMap<String, Double> sortedMap = new LinkedHashMap<>();
             map.entrySet().stream().sorted(Map.Entry.comparingByValue())
                     .forEachOrdered(x -> sortedMap.put(x.getKey(), x.getValue()));
             return sortedMap;
-        }
-        else if (order.equals("desc")) {
+
+        } else if (order.equals("desc")) {
             LinkedHashMap<String, Double> reverseSortedMap = new LinkedHashMap<>();
             map.entrySet().stream().sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
                     .forEachOrdered(x -> reverseSortedMap.put(x.getKey(), x.getValue()));
@@ -235,14 +274,21 @@ public final class Utils {
         return (HashMap<String, Double>) map;
     }
 
-    public static HashMap<String, Double> sortByKeyDouble(Map<String, Double> map, String order) {
+    /**
+     * Method to sort hashmap by keys
+     * @param map
+     * @param order
+     * @return
+     */
+    public static HashMap<String, Double> sortByKeyDouble(final Map<String, Double> map,
+                                                          final String order) {
         if (order.equals("asc")) {
             LinkedHashMap<String, Double> sortedMap = new LinkedHashMap<>();
             map.entrySet().stream().sorted(Map.Entry.comparingByKey())
                     .forEachOrdered(x -> sortedMap.put(x.getKey(), x.getValue()));
             return sortedMap;
-        }
-        else if (order.equals("desc")) {
+
+        } else if (order.equals("desc")) {
             LinkedHashMap<String, Double> reverseSortedMap = new LinkedHashMap<>();
             map.entrySet().stream().sorted(Map.Entry.comparingByKey(Comparator.reverseOrder()))
                     .forEachOrdered(x -> reverseSortedMap.put(x.getKey(), x.getValue()));
@@ -251,43 +297,47 @@ public final class Utils {
         return (HashMap<String, Double>) map;
     }
 
-    // Calculates average rating for an actor
-    public static Double calculateAverage (Database database,
-                                           ActorInputData actor) {
+    /**
+     * Calculates average rating for an actor
+     * @param database
+     * @param actor
+     * @return
+     */
+    public static Double calculateAverage(final Database database,
+                                          final ActorInputData actor) {
         ArrayList<String> filmography = actor.getFilmography();
         List<Double> ratings;
-        double movie_average, show_average, season_average;
+        double movieAverage, showAverage, seasonAverage;
         double average = 0.0;
         int size = 0;
         for (String title : filmography) {
-            movie_average = 0.0;
-            show_average = 0.0;
+            movieAverage = 0.0;
+            showAverage = 0.0;
             if (database.movieMap.get(title) != null) {
                 ratings = database.movieMap.get(title).getRatings();
                 for (double rating : ratings) {
-                    movie_average += rating;
+                    movieAverage += rating;
                 }
-                if (movie_average != 0.0) {
-                    movie_average /= ratings.size();
-                    average += movie_average;
+                if (movieAverage != 0.0) {
+                    movieAverage /= ratings.size();
+                    average += movieAverage;
                     size++;
                 }
-            }
-            else if (database.showMap.get(title) != null){
+            } else if (database.showMap.get(title) != null) {
                 for (Season season : database.showMap.get(title).getSeasons()) {
-                    season_average = 0;
+                    seasonAverage = 0;
                     ratings = season.getRatings();
                     for (double rating : ratings) {
-                        season_average += rating;
+                        seasonAverage += rating;
                     }
-                    if (season_average != 0.0) {
-                        season_average /= ratings.size();
+                    if (seasonAverage != 0.0) {
+                        seasonAverage /= ratings.size();
                     }
-                    show_average += season_average;
+                    showAverage += seasonAverage;
                 }
-                show_average /= database.showMap.get(title).getNumberofSeasons();
-                if (show_average != 0.0) {
-                    average += show_average;
+                showAverage /= database.showMap.get(title).getNumberofSeasons();
+                if (showAverage != 0.0) {
+                    average += showAverage;
                     size++;
                 }
             }
@@ -295,5 +345,4 @@ public final class Utils {
         average /= size;
         return average;
     }
-
 }

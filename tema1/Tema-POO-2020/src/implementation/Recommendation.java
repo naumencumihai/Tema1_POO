@@ -7,34 +7,52 @@ import video.Movie;
 import video.Show;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 
-import static utils.Utils.*;
+import static utils.Utils.sortByKeyDouble;
+import static utils.Utils.sortByValueDouble;
+
 
 public class Recommendation {
 
-    public JSONObject Standard (Writer filewriter, ActionInputData action,
-                                       Database database) throws IOException {
+    /**
+     * Returns one recommendation
+     * @param filewriter
+     * @param action
+     * @param database
+     * @return
+     * @throws IOException
+     */
+    public static JSONObject standard(final Writer filewriter,
+                                      final ActionInputData action,
+                                      final Database database)
+            throws IOException {
         String video = "All videos watched";
         List<String> list = new ArrayList<>();
-        List<String> history_list = new ArrayList<>();
+        List<String> historyList = new ArrayList<>();
         Map<String, Integer> history;
 
-        for (Movie movie : database.movieList)
+        for (Movie movie : database.movieList) {
             list.add(movie.getTitle());
-        for (Show show : database.showList)
+        }
+        for (Show show : database.showList) {
             list.add(show.getTitle());
+        }
 
         // Gets User's history
         history = database.userMap.get(action.getUsername()).getHistory();
 
         // Creates a list with titles from history
-        for (Map.Entry<String, Integer> entry : history.entrySet())
-            history_list.add(entry.getKey());
+        for (Map.Entry<String, Integer> entry : history.entrySet()) {
+            historyList.add(entry.getKey());
+        }
 
         // Searches for first non-viewed item
         for (String title : list) {
-            if (!history_list.contains(title)) {
+            if (!historyList.contains(title)) {
                 video = title;
                 break;
             }
@@ -44,39 +62,52 @@ public class Recommendation {
                 "StandardRecommendation result: " + video);
     }
 
-    public JSONObject BestUnseen (Writer filewriter, ActionInputData action,
-                                       Database database) throws IOException {
+    /**
+     * Return the best unseen video
+     * @param filewriter
+     * @param action
+     * @param database
+     * @return
+     * @throws IOException
+     */
+    public static JSONObject bestUnseen(final Writer filewriter,
+                                        final ActionInputData action,
+                                        final Database database)
+            throws IOException {
         String video = "All videos watched";
         List<String> list = new ArrayList<>();
-        List<String> history_list = new ArrayList<>();
+        List<String> historyList = new ArrayList<>();
         Map<String, Integer> history;
-        Map<String, Double> videos_by_rating = new LinkedHashMap<>();
+        Map<String, Double> videosByRating = new LinkedHashMap<>();
 
         // Gets User's history
         history = database.userMap.get(action.getUsername()).getHistory();
 
         // Creates a list with titles from history
-        for (Map.Entry<String, Integer> entry : history.entrySet())
-            history_list.add(entry.getKey());
+        for (Map.Entry<String, Integer> entry : history.entrySet()) {
+            historyList.add(entry.getKey());
+        }
 
-        // Populates videos_by_rating Map
-        for (Movie movie : database.movieList)
-            videos_by_rating.put(movie.getTitle(), movie.getRating());
+        // Populates videosByRating Map
+        for (Movie movie : database.movieList) {
+            videosByRating.put(movie.getTitle(), movie.getRating());
+        }
 
-        for (Show show : database.showList)
-            videos_by_rating.put(show.getTitle(), show.getRating());
-
+        for (Show show : database.showList) {
+            videosByRating.put(show.getTitle(), show.getRating());
+        }
 
         // Sorts by ratings in descending order
-        videos_by_rating = sortByValueDouble(videos_by_rating, "desc");
+        videosByRating = sortByValueDouble(videosByRating, "desc");
 
         // Creates list from Map
-        for (Map.Entry<String, Double> entry : videos_by_rating.entrySet())
-                list.add(entry.getKey());
+        for (Map.Entry<String, Double> entry : videosByRating.entrySet()) {
+            list.add(entry.getKey());
+        }
 
         // Searches for first non-viewed item
         for (String title : list) {
-            if (!history_list.contains(title)) {
+            if (!historyList.contains(title)) {
                 video = title;
                 break;
             }
@@ -85,52 +116,89 @@ public class Recommendation {
         return filewriter.writeFile(action.getActionId(), "field",
                 "BestRatedUnseenRecommendation result: " + video);
     }
-/*
-    public JSONObject Popular (Writer filewriter, ActionInputData action,
-                                       Database database) throws IOException {
 
+    /**
+     * TODO
+     * @param filewriter
+     * @param action
+     * @param database
+     * @return
+     * @throws IOException
+     */
+    public static JSONObject popular(final Writer filewriter,
+                                      final ActionInputData action,
+                                      final  Database database)
+            throws IOException {
+        return filewriter.writeFile(action.getActionId(), "field",
+                "TODO ");
     }
 
-    public JSONObject RecommendationFavorite (Writer filewriter, ActionInputData action,
-                                       Database database) throws IOException {
-
+    /**
+     * TODO
+     * @param filewriter
+     * @param action
+     * @param database
+     * @return
+     * @throws IOException
+     */
+    public static  JSONObject recommendationFavorite(final Writer filewriter,
+                                                      final  ActionInputData action,
+                                                      final  Database database)
+            throws IOException {
+        return filewriter.writeFile(action.getActionId(), "field",
+                "TODO ");
     }
- */
-    public JSONObject Search (Writer filewriter, ActionInputData action,
-                                       Database database) throws IOException {
+
+    /**
+     * Return list of recommendations
+     * @param filewriter
+     * @param action
+     * @param database
+     * @return
+     * @throws IOException
+     */
+    public static JSONObject search(final Writer filewriter,
+                                    final ActionInputData action,
+                                    final Database database)
+            throws IOException {
         ArrayList<String> list1 = new ArrayList<>();
         ArrayList<String> list2 = new ArrayList<>();
-        Map<String, Double> videos_by_rating = new LinkedHashMap<>();
-        List<String> history_list = new ArrayList<>();
+        Map<String, Double> videosByRating = new LinkedHashMap<>();
+        List<String> historyList = new ArrayList<>();
         Map<String, Integer> history;
 
         // Gets User's history
         history = database.userMap.get(action.getUsername()).getHistory();
 
         // Creates a list with titles from history
-        for (Map.Entry<String, Integer> entry : history.entrySet())
-            history_list.add(entry.getKey());
+        for (Map.Entry<String, Integer> entry : history.entrySet()) {
+            historyList.add(entry.getKey());
+        }
 
         for (Movie movie : database.movieList) {
-            if (movie.getGenres().contains(action.getGenre()))
-                videos_by_rating.put(movie.getTitle(), movie.getRating());
+            if (movie.getGenres().contains(action.getGenre())) {
+                videosByRating.put(movie.getTitle(), movie.getRating());
+            }
         }
         for (Show show : database.showList) {
-            if (show.getGenres().contains(action.getGenre()))
-                videos_by_rating.put(show.getTitle(), show.getRating());
+            if (show.getGenres().contains(action.getGenre())) {
+                videosByRating.put(show.getTitle(), show.getRating());
+            }
         }
 
-        videos_by_rating = sortByKeyDouble(videos_by_rating, "asc");
-        videos_by_rating = sortByValueDouble(videos_by_rating, "asc");
+        videosByRating = sortByKeyDouble(videosByRating, "asc");
+        videosByRating = sortByValueDouble(videosByRating, "asc");
 
         // Creates list from Map
-        for (Map.Entry<String, Double> entry : videos_by_rating.entrySet())
+        for (Map.Entry<String, Double> entry : videosByRating.entrySet()) {
             list1.add(entry.getKey());
+        }
 
         // Removes seen videos from list
         for (String title : list1) {
-            if (!history_list.contains(title))
+            if (!historyList.contains(title)) {
                 list2.add(title);
+            }
         }
         return filewriter.writeFile(action.getActionId(), "field",
                 "SearchRecommendation result: " + list2);

@@ -16,34 +16,48 @@ import java.util.Map;
  */
 public class Command {
 
-    //public Command() {}
-
+    /**
+     * @param filewriter
+     * @param action
+     * @param database
+     * @return
+     * @throws IOException
+     */
     // Favorite command
-    public JSONObject Favorite (Writer filewriter, ActionInputData action,
-                               Database database) throws IOException {
+    public static JSONObject favorite(final Writer filewriter,
+                                    final ActionInputData action,
+                                    final Database database)
+                                    throws IOException {
         User currentUser = database.userMap.get(action.getUsername());
         String video = action.getTitle();
         Map<String, Integer> history = currentUser.getHistory();
 
-        if (currentUser.getFavoriteMovies().contains(video)){
+        if (currentUser.getFavoriteMovies().contains(video)) {
             return  filewriter.writeFile(action.getActionId(), "field",
                     "error -> " + video + " is already in favourite list");
-        }
-        else if(history.containsKey(video)){
+        } else if (history.containsKey(video)) {
             currentUser.addFavoriteMovie(video);
 
             return filewriter.writeFile(action.getActionId(), "field",
                     "success -> " + video + " was added as favourite");
-        }
-        else {
+        } else {
             return filewriter.writeFile(action.getActionId(), "field",
                     "error -> " + video + " is not seen");
         }
     }
 
+    /**
+     * @param filewriter
+     * @param action
+     * @param database
+     * @return
+     * @throws IOException
+     */
     // View command
-    public JSONObject View (Writer filewriter, ActionInputData action,
-                      Database database) throws IOException {
+    public static JSONObject view(final Writer filewriter,
+                                final ActionInputData action,
+                                final Database database)
+                                throws IOException {
         User currentUser = database.userMap.get(action.getUsername());
         String video = action.getTitle();
         Map<String, Integer> history = currentUser.getHistory();
@@ -55,33 +69,39 @@ public class Command {
          */
         if (history.containsKey(video)) {
             history.replace(video, history.get(video) + 1);
-        }
-        else {
+        } else {
             history.put(video, 1);
         }
         currentUser.setHistory(history);
         return filewriter.writeFile(action.getActionId(),
-                "field", "success -> " + video +
-                " was viewed with total views of " + history.get(video));
+                "field", "success -> " + video
+                    + " was viewed with total views of " + history.get(video));
     }
 
-    // Rating command
-    public JSONObject Rating (Writer filewriter, ActionInputData action,
-                              Database database) throws IOException {
+    /**
+     * Rating command
+     * @param filewriter
+     * @param action
+     * @param database
+     * @return
+     * @throws IOException
+     */
+    public static JSONObject rating(final Writer filewriter,
+                                    final ActionInputData action,
+                                    final Database database)
+                                    throws IOException {
         User currentUser = database.userMap.get(action.getUsername());
         String title = action.getTitle();
-
         // Checks if video is viewed by user
         if (currentUser.getHistory().containsKey(title)) {
-
             // Checks if video is already rated
-            if (currentUser.getRatings() != null &&
-                currentUser.getRatings().containsKey(title)) {
+            if (currentUser.getRatings() != null
+                    && currentUser.getRatings().containsKey(title)
+                    && (!database.showMap.containsKey(title))) {
                 return filewriter.writeFile(action.getActionId(),
-                        "field", "error -> " + title +
-                                " has been already rated");
-            }
-            else {
+                        "field", "error -> " + title
+                                + " has been already rated");
+            } else {
                 // Specified video is a Movie
                 if (database.movieMap.containsKey(title)) {
                     currentUser.addRating(title, action.getGrade());
@@ -89,9 +109,7 @@ public class Command {
 
                     // Updates Movie's ratings
                     movie.addRating(action.getGrade());
-                }
-                // Specified video is a Show
-                else if (database.showMap.containsKey(title)) {
+                } else if (database.showMap.containsKey(title)) {
                     currentUser.addRating(title, action.getGrade());
                     Show show = database.showMap.get(title);
 
@@ -107,13 +125,13 @@ public class Command {
                 }
 
                 return filewriter.writeFile(action.getActionId(),
-                        "field", "success -> " + title +
-                                " was rated with " + action.getGrade() +
-                                " by " + currentUser.getUsername());
+                        "field", "success -> " + title
+                                + " was rated with " + action.getGrade()
+                                + " by " + currentUser.getUsername());
             }
         }
         return filewriter.writeFile(action.getActionId(),
-                "field", "error -> " + title +
-                " was not viewed");
+                "field", "error -> " + title
+                        + " is not seen");
     }
 }
