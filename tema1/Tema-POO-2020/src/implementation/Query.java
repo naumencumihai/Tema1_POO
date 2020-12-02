@@ -7,6 +7,9 @@ import fileio.ActorInputData;
 import fileio.Writer;
 import org.json.simple.JSONObject;
 import user.User;
+import video.Movie;
+import video.Show;
+import video.Video;
 
 import java.io.IOException;
 import java.util.*;
@@ -88,6 +91,7 @@ public class Query {
         int total_awards;
 
         for (ActorInputData actor : database.actorList) {
+
             total_awards = 0;
             // Copies awards of current actor in actor_awards list
             actor_awards = new ArrayList<>(actor.getAwards().keySet());
@@ -113,7 +117,291 @@ public class Query {
                 "Query result: " + list);
     }
 
-    private Double calculateAverage (Database database, ActorInputData actor) {
+    public JSONObject FilterDescription (Writer filewriter,
+                                         ActionInputData action,
+                                         Database database)
+            throws IOException {
+        // List to be returned
+        ArrayList<String> list = new ArrayList<>();
+        // List with keywords from query
+        List<String> words;
+        words = action.getFilters().get(2);
+        // Career description of an actor
+        String career;
+        // Used to check if keywords are in career description
+        boolean check;
+        // Iterates through all actors
+        for (ActorInputData actor : database.actorList) {
+            career = actor.getCareerDescription();
+            // Default value
+            check = true;
+            // Iterates through keywords
+            for (String word : words) {
+                /* If at least one keyword not in career description,
+                    breaks from for loop and check becomes false
+                */
+                if (!career.contains(word)) {
+                    check = false;
+                    break;
+                }
+            }
+            // Adds only if all keywords in actor description
+            if (check)
+                list.add(actor.getName());
+        }
+
+        // Sorts actor list according to query specification
+        if (action.getSortType().equals("asc"))
+            Collections.sort(list);
+        else
+            Collections.sort(list, Collections.reverseOrder());
+
+        return filewriter.writeFile(action.getActionId(), "field",
+                "Query result: " + list);
+    }
+
+    public JSONObject Ratings (Writer filewriter, ActionInputData action,
+                               Database database) throws IOException {
+        int number = action.getNumber();
+        Map<String, Double> videos_by_rating = new HashMap<>();
+        double average, season_average;
+        List<String> list = new ArrayList<>();
+        int count = 0;
+
+
+        if (action.getObjectType().equals("movies")) {
+            List<Movie> movieList = FilterMovies(database.movieList, action);
+            for (Movie movie : movieList) {
+                average = 0.0;
+                for (double rating : movie.getRatings()) {
+                    average += rating;
+                }
+                average /= movie.getRatings().size();
+                videos_by_rating.put(movie.getTitle(), average);
+            }
+        }
+        else if (action.getObjectType().equals("shows")) {
+            List<Show> showList = FilterShows(database.showList, action);
+            for (Show show : showList) {
+                average = 0.0;
+                for (Season s : show.getSeasons()) {
+                    season_average = 0.0;
+                    for (double rating : s.getRatings()) {
+                        season_average += rating;
+                    }
+                    season_average /= s.getRatings().size();
+                    average += season_average;
+                }
+                average /= show.getNumberofSeasons();
+                videos_by_rating.put(show.getTitle(), average);
+            }
+        }
+
+        videos_by_rating = sortByKeyDouble(videos_by_rating, action.getSortType());
+        videos_by_rating = sortByValueDouble(videos_by_rating, action.getSortType());
+
+        for (Map.Entry<String, Double> entry : videos_by_rating.entrySet()) {
+            if (count == number) break;
+            if (entry.getValue() > 0.0) {
+                list.add(entry.getKey());
+                count++;
+            }
+        }
+        return filewriter.writeFile(action.getActionId(), "field",
+                "Query result: " + list);
+    }
+
+    public JSONObject VideoFavorite (Writer filewriter,
+                                     ActionInputData action,
+                                     Database database) throws IOException {
+        int number = action.getNumber();
+        int count;
+        Map<String, Integer> videos_by_favorite = new HashMap<>();
+        List<String> list = new ArrayList<>();
+
+        if (action.getObjectType().equals("movies")) {
+            List<Movie> movieList = FilterMovies(database.movieList, action);
+            for (Movie movie : movieList) {
+                count = 0;
+                for (User user : database.userList) {
+                    if (user.getFavoriteMovies().contains(movie.getTitle()))
+                        count++;
+                }
+                videos_by_favorite.put(movie.getTitle(), count);
+            }
+        }
+        else if (action.getObjectType().equals("shows")) {
+            List<Show> showList = FilterShows(database.showList, action);
+            for (Show show : showList) {
+                count = 0;
+                for (User user : database.userList) {
+                    if (user.getFavoriteMovies().contains(show.getTitle()))
+                        count++;
+                }
+                videos_by_favorite.put(show.getTitle(), count);
+            }
+        }
+
+        videos_by_favorite = sortByKeyInteger(videos_by_favorite, action.getSortType());
+        videos_by_favorite = sortByValueInteger(videos_by_favorite, action.getSortType());
+
+        count = 0;
+        for (Map.Entry<String, Integer> entry : videos_by_favorite.entrySet()) {
+            if (count == number) break;
+            if (entry.getValue() > 0.0) {
+                list.add(entry.getKey());
+                count++;
+            }
+        }
+        return filewriter.writeFile(action.getActionId(), "field",
+                "Query result: " + list);
+    }
+
+    public JSONObject Longest (Writer filewriter,
+                               ActionInputData action,
+                               Database database) throws IOException {
+        int number = action.getNumber();
+        int count = 0;
+        Map<String, Integer> videos_by_duration = new HashMap<>();
+        List<String> list = new ArrayList<>();
+
+        if (action.getObjectType().equals("movies")) {
+            List<Movie> movieList = FilterMovies(database.movieList, action);
+            for (Movie movie : movieList) {
+                videos_by_duration.put(movie.getTitle(), movie.getDuration());
+            }
+        }
+        else if (action.getObjectType().equals("shows")) {
+            List<Show> showList = FilterShows(database.showList, action);
+            int total = 0;
+            for (Show show : showList) {
+                for (Season s : show.getSeasons()) {
+                    total += s.getDuration();
+                }
+                videos_by_duration.put(show.getTitle(), total);
+            }
+        }
+
+        videos_by_duration = sortByKeyInteger(videos_by_duration, action.getSortType());
+        videos_by_duration = sortByValueInteger(videos_by_duration, action.getSortType());
+
+        for (Map.Entry<String, Integer> entry : videos_by_duration.entrySet()) {
+            if (count == number) break;
+            list.add(entry.getKey());
+            count++;
+        }
+
+        return filewriter.writeFile(action.getActionId(), "field",
+                "Query result: " + list);
+    }
+
+    public JSONObject MostViewed (Writer filewriter,
+                                ActionInputData action,
+                                Database database) throws IOException {
+        int number = action.getNumber();
+        int count = 0;
+        int views;
+        List<String> list = new ArrayList<>();
+        Map<String, Integer> videos_by_views = new HashMap<>();
+
+        if (action.getObjectType().equals("movies")) {
+            List<Movie> movieList = FilterMovies(database.movieList, action);
+            for (Movie movie : movieList) {
+                views = 0;
+                for (User user : database.userList) {
+                    if (user.getHistory().containsKey(movie.getTitle()))
+                        views += user.getHistory().get(movie.getTitle());
+                }
+                if (views != 0)
+                    videos_by_views.put(movie.getTitle(), views);
+            }
+        }
+        else if (action.getObjectType().equals("shows")) {
+            List<Show> showList = FilterShows(database.showList, action);
+            for (Show show : showList) {
+                views = 0;
+                for (User user : database.userList) {
+                    if (user.getHistory().containsKey(show.getTitle()))
+                        views += user.getHistory().get(show.getTitle());
+                }
+                if (views != 0)
+                    videos_by_views.put(show.getTitle(), views);
+            }
+        }
+        videos_by_views = sortByKeyInteger(videos_by_views, action.getSortType());
+        videos_by_views = sortByValueInteger(videos_by_views, action.getSortType());
+
+        System.out.println(videos_by_views);
+
+        for (Map.Entry<String, Integer> entry : videos_by_views.entrySet()) {
+            if (count == number) break;
+            list.add(entry.getKey());
+            count++;
+        }
+
+        return filewriter.writeFile(action.getActionId(), "field",
+                "Query result: " + list);
+    }
+
+    // Filters movies by year and genre
+    private List<Movie> FilterMovies (List<Movie> videos,
+                                      ActionInputData action) {
+        List<Movie> filtered_by_year = new ArrayList<>();
+        List<Movie> filtered = new ArrayList<>();
+
+        List<String> year = action.getFilters().get(0);
+        List<String> genre = action.getFilters().get(1);
+
+        if (year.get(0) != null)
+            for (Movie video : videos) {
+                if (year.get(0).equals(Integer.toString(video.getYear())))
+                    filtered_by_year.add(video);
+            }
+        else
+            filtered_by_year.addAll(videos);
+
+        if (genre != null)
+            for (Movie video : filtered_by_year) {
+                if (video.getGenres().containsAll(genre))
+                    filtered.add(video);
+            }
+        else
+            filtered.addAll(filtered_by_year);
+
+        return filtered;
+    }
+
+    // Filters Shows by year and genre
+    private List<Show> FilterShows (List<Show> videos,
+                                      ActionInputData action) {
+        List<Show> filtered_by_year = new ArrayList<>();
+        List<Show> filtered = new ArrayList<>();
+
+        List<String> year = action.getFilters().get(0);
+        List<String> genre = action.getFilters().get(1);
+
+        if (year.get(0) != null)
+            for (Show video : videos) {
+                if (year.get(0).equals(Integer.toString(video.getYear())))
+                    filtered_by_year.add(video);
+            }
+        else
+            filtered_by_year.addAll(videos);
+
+        if (genre != null)
+            for (Show video : filtered_by_year) {
+                if (video.getGenres().containsAll(genre))
+                    filtered.add(video);
+            }
+        else
+            filtered.addAll(filtered_by_year);
+
+        return filtered;
+    }
+
+    // Calculates average rating for an actor
+    private Double calculateAverage (Database database,
+                                     ActorInputData actor) {
         ArrayList<String> filmography = actor.getFilmography();
         List<Double> ratings;
         double movie_average, show_average, season_average;
@@ -156,7 +444,7 @@ public class Query {
         return average;
     }
 
-    // Function to sort hashmap by values
+    // Method to sort hashmap by values
     private HashMap<String, Integer> sortByValueInteger(Map<String, Integer> map, String order) {
         if (order.equals("asc")) {
             LinkedHashMap<String, Integer> sortedMap = new LinkedHashMap<>();

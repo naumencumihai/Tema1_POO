@@ -31,24 +31,39 @@ public class Implementation extends Query{
                     result.add(this.Rating(filewriter, action, database));
             }
             if (action.getActionType().equals((Constants.QUERY))) {
-                if (action.getObjectType().equals("users"))
-                    result.add(this.NumberofRatings(filewriter, action, database));
-                else if (action.getObjectType().equals("movies")) {
-
-                }
-                else if (action.getObjectType().equals("shows")) {
-
-                }
-                else if (action.getObjectType().equals("actors")) {
-                    if (action.getCriteria().equals("average")) {
-                        result.add(this.Average(filewriter, action, database));
-                    }
-                    else if (action.getCriteria().equals("awards")) {
-                        result.add(this.Awards(filewriter, action, database));
-                    }
+                switch (action.getObjectType()) {
+                    case "users":
+                        result.add(this.NumberofRatings
+                                (filewriter, action, database));
+                        break;
+                    case "movies":
+                    case "shows":
+                        switch (action.getCriteria()) {
+                            case "ratings" -> result.add(this.Ratings
+                                    (filewriter, action, database));
+                            case "favorite" -> result.add(this.VideoFavorite
+                                    (filewriter, action, database));
+                            case "longest" -> result.add(this.Longest
+                                    (filewriter, action, database));
+                            case "most_viewed" -> result.add(this.MostViewed
+                                    (filewriter, action, database));
+                        }
+                        break;
+                    case "actors":
+                        switch (action.getCriteria()) {
+                            case "average" ->
+                                    result.add(this.Average
+                                            (filewriter, action, database));
+                            case "awards" ->
+                                    result.add(this.Awards
+                                            (filewriter, action, database));
+                            case "filter_description" ->
+                                    result.add(this.FilterDescription
+                                            (filewriter, action, database));
+                        }
+                        break;
                 }
             }
-
         }
     }
 
