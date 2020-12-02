@@ -3,12 +3,16 @@ package utils;
 import actor.ActorsAwards;
 import common.Constants;
 import entertainment.Genre;
+import entertainment.Season;
+import fileio.ActionInputData;
+import fileio.ActorInputData;
+import implementation.Database;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import video.Movie;
+import video.Show;
 
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.LinkedHashMap;
+import java.util.*;
 
 /**
  * The class contains static methods that helps with parsing.
@@ -123,4 +127,173 @@ public final class Utils {
 
         return mapVideos;
     }
+
+    // Filters movies by year and genre
+    public static List<Movie> FilterMovies (List<Movie> videos,
+                                      ActionInputData action) {
+        List<Movie> filtered_by_year = new ArrayList<>();
+        List<Movie> filtered = new ArrayList<>();
+
+        List<String> year = action.getFilters().get(0);
+        List<String> genre = action.getFilters().get(1);
+
+        if (year.get(0) != null) {
+            for (Movie video : videos) {
+                if (year.get(0).equals(Integer.toString(video.getYear())))
+                    filtered_by_year.add(video);
+            }
+        }
+        else
+            filtered_by_year.addAll(videos);
+
+        if (genre.get(0) != null)
+            for (Movie video : filtered_by_year) {
+                if (video.getGenres().containsAll(genre))
+                    filtered.add(video);
+            }
+        else
+            filtered.addAll(filtered_by_year);
+
+        return filtered;
+    }
+
+    // Filters Shows by year and genre
+    public static List<Show> FilterShows (List<Show> videos,
+                                    ActionInputData action) {
+        List<Show> filtered_by_year = new ArrayList<>();
+        List<Show> filtered = new ArrayList<>();
+
+        List<String> year = action.getFilters().get(0);
+        List<String> genre = action.getFilters().get(1);
+
+        if (year.get(0) != null)
+            for (Show video : videos) {
+                if (year.get(0).equals(Integer.toString(video.getYear())))
+                    filtered_by_year.add(video);
+            }
+        else
+            filtered_by_year.addAll(videos);
+
+        if (genre != null)
+            for (Show video : filtered_by_year) {
+                if (video.getGenres().containsAll(genre))
+                    filtered.add(video);
+            }
+        else
+            filtered.addAll(filtered_by_year);
+
+        return filtered;
+    }
+
+    // Method to sort hashmap by values
+    public static HashMap<String, Integer> sortByValueInteger(Map<String, Integer> map, String order) {
+        if (order.equals("asc")) {
+            LinkedHashMap<String, Integer> sortedMap = new LinkedHashMap<>();
+            map.entrySet().stream().sorted(Map.Entry.comparingByValue())
+                    .forEachOrdered(x -> sortedMap.put(x.getKey(), x.getValue()));
+            return sortedMap;
+        }
+        else if (order.equals("desc")) {
+            LinkedHashMap<String, Integer> reverseSortedMap = new LinkedHashMap<>();
+            map.entrySet().stream().sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+                    .forEachOrdered(x -> reverseSortedMap.put(x.getKey(), x.getValue()));
+            return reverseSortedMap;
+        }
+        return (HashMap<String, Integer>) map;
+    }
+
+    // Method to sort hashmap by keys
+    public static HashMap<String, Integer> sortByKeyInteger(Map<String, Integer> map, String order) {
+        if (order.equals("asc")) {
+            LinkedHashMap<String, Integer> sortedMap = new LinkedHashMap<>();
+            map.entrySet().stream().sorted(Map.Entry.comparingByKey())
+                    .forEachOrdered(x -> sortedMap.put(x.getKey(), x.getValue()));
+            return sortedMap;
+        }
+        else if (order.equals("desc")) {
+            LinkedHashMap<String, Integer> reverseSortedMap = new LinkedHashMap<>();
+            map.entrySet().stream().sorted(Map.Entry.comparingByKey(Comparator.reverseOrder()))
+                    .forEachOrdered(x -> reverseSortedMap.put(x.getKey(), x.getValue()));
+            return reverseSortedMap;
+        }
+        return (HashMap<String, Integer>) map;
+    }
+
+    public static HashMap<String, Double> sortByValueDouble(Map<String, Double> map, String order) {
+        if (order.equals("asc")) {
+            LinkedHashMap<String, Double> sortedMap = new LinkedHashMap<>();
+            map.entrySet().stream().sorted(Map.Entry.comparingByValue())
+                    .forEachOrdered(x -> sortedMap.put(x.getKey(), x.getValue()));
+            return sortedMap;
+        }
+        else if (order.equals("desc")) {
+            LinkedHashMap<String, Double> reverseSortedMap = new LinkedHashMap<>();
+            map.entrySet().stream().sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+                    .forEachOrdered(x -> reverseSortedMap.put(x.getKey(), x.getValue()));
+            return reverseSortedMap;
+        }
+        return (HashMap<String, Double>) map;
+    }
+
+    public static HashMap<String, Double> sortByKeyDouble(Map<String, Double> map, String order) {
+        if (order.equals("asc")) {
+            LinkedHashMap<String, Double> sortedMap = new LinkedHashMap<>();
+            map.entrySet().stream().sorted(Map.Entry.comparingByKey())
+                    .forEachOrdered(x -> sortedMap.put(x.getKey(), x.getValue()));
+            return sortedMap;
+        }
+        else if (order.equals("desc")) {
+            LinkedHashMap<String, Double> reverseSortedMap = new LinkedHashMap<>();
+            map.entrySet().stream().sorted(Map.Entry.comparingByKey(Comparator.reverseOrder()))
+                    .forEachOrdered(x -> reverseSortedMap.put(x.getKey(), x.getValue()));
+            return reverseSortedMap;
+        }
+        return (HashMap<String, Double>) map;
+    }
+
+    // Calculates average rating for an actor
+    public static Double calculateAverage (Database database,
+                                           ActorInputData actor) {
+        ArrayList<String> filmography = actor.getFilmography();
+        List<Double> ratings;
+        double movie_average, show_average, season_average;
+        double average = 0.0;
+        int size = 0;
+        for (String title : filmography) {
+            movie_average = 0.0;
+            show_average = 0.0;
+            if (database.movieMap.get(title) != null) {
+                ratings = database.movieMap.get(title).getRatings();
+                for (double rating : ratings) {
+                    movie_average += rating;
+                }
+                if (movie_average != 0.0) {
+                    movie_average /= ratings.size();
+                    average += movie_average;
+                    size++;
+                }
+            }
+            else if (database.showMap.get(title) != null){
+                for (Season season : database.showMap.get(title).getSeasons()) {
+                    season_average = 0;
+                    ratings = season.getRatings();
+                    for (double rating : ratings) {
+                        season_average += rating;
+                    }
+                    if (season_average != 0.0) {
+                        season_average /= ratings.size();
+                    }
+                    show_average += season_average;
+                }
+                show_average /= database.showMap.get(title).getNumberofSeasons();
+                if (show_average != 0.0) {
+                    average += show_average;
+                    size++;
+                }
+            }
+        }
+        average /= size;
+        return average;
+    }
+
 }

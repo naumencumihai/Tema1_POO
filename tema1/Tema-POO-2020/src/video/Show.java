@@ -35,4 +35,20 @@ public class Show extends Video{
     public void setSeasons(List<Season> seasons) {
         this.seasons = seasons;
     }
+
+    public double getRating () {
+        double rating = 0.0;
+            for (Season s : this.getSeasons()) {
+                double season_rating = 0.0;
+                if (s.getRatings().size() != 0) {
+                    for (double r : s.getRatings()) {
+                        season_rating += r;
+                    }
+                    season_rating /= s.getRatings().size();
+                    rating += season_rating;
+                }
+            }
+            rating /= this.getNumberofSeasons();
+        return rating;
+    }
 }

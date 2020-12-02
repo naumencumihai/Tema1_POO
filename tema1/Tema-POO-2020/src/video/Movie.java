@@ -38,4 +38,16 @@ public class Movie extends Video {
     public void addRating(Double rating) {
         this.ratings.add(rating);
     }
+
+    public double getRating() {
+        double rating = 0.0;
+
+        if (ratings.size() != 0) {
+            for (double r : ratings)
+                rating += r;
+
+            rating /= ratings.size();
+        }
+        return rating;
+    }
 }

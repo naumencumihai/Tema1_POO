@@ -9,12 +9,11 @@ import org.json.simple.JSONObject;
 import user.User;
 import video.Movie;
 import video.Show;
-import video.Video;
 
 import java.io.IOException;
 import java.util.*;
 
-import static utils.Utils.stringToAwards;
+import static utils.Utils.*;
 
 /**
  * This class handles the functionalities of the query action
@@ -32,12 +31,13 @@ public class Query {
             users_by_rating.put(user.getUsername(), user.getRatings().size());
         }
 
+        users_by_rating = sortByKeyInteger(users_by_rating, action.getSortType());
         users_by_rating = sortByValueInteger(users_by_rating, action.getSortType());
 
         int count = 0;
 
         for (Map.Entry<String, Integer> entry : users_by_rating.entrySet()) {
-            if (count == number - 1) break;
+            if (count == number) break;
             if (entry.getValue() != 0) {
                 list.add(entry.getKey());
                 count++;
@@ -65,7 +65,7 @@ public class Query {
 
         for (Map.Entry<String, Double> entry : actors_by_average.entrySet()) {
             if (count == number) break;
-            if (entry.getValue() != 0) {
+            if (entry.getValue() > 0) {
                 list.add(entry.getKey());
                 count++;
             }
@@ -133,12 +133,19 @@ public class Query {
         // Iterates through all actors
         for (ActorInputData actor : database.actorList) {
             career = actor.getCareerDescription();
+            // Makes it case insesitive
+            career = career.toLowerCase();
+
             // Default value
             check = true;
+
             // Iterates through keywords
             for (String word : words) {
-                /* If at least one keyword not in career description,
-                    breaks from for loop and check becomes false
+                word  = word.toLowerCase();
+                word = " " + word; // Adds space in front of word
+                /*
+                If at least one keyword not in career description,
+                breaks from for loop and check becomes false
                 */
                 if (!career.contains(word)) {
                     check = false;
@@ -331,8 +338,6 @@ public class Query {
         videos_by_views = sortByKeyInteger(videos_by_views, action.getSortType());
         videos_by_views = sortByValueInteger(videos_by_views, action.getSortType());
 
-        System.out.println(videos_by_views);
-
         for (Map.Entry<String, Integer> entry : videos_by_views.entrySet()) {
             if (count == number) break;
             list.add(entry.getKey());
@@ -341,171 +346,5 @@ public class Query {
 
         return filewriter.writeFile(action.getActionId(), "field",
                 "Query result: " + list);
-    }
-
-    // Filters movies by year and genre
-    private List<Movie> FilterMovies (List<Movie> videos,
-                                      ActionInputData action) {
-        List<Movie> filtered_by_year = new ArrayList<>();
-        List<Movie> filtered = new ArrayList<>();
-
-        List<String> year = action.getFilters().get(0);
-        List<String> genre = action.getFilters().get(1);
-
-        if (year.get(0) != null)
-            for (Movie video : videos) {
-                if (year.get(0).equals(Integer.toString(video.getYear())))
-                    filtered_by_year.add(video);
-            }
-        else
-            filtered_by_year.addAll(videos);
-
-        if (genre != null)
-            for (Movie video : filtered_by_year) {
-                if (video.getGenres().containsAll(genre))
-                    filtered.add(video);
-            }
-        else
-            filtered.addAll(filtered_by_year);
-
-        return filtered;
-    }
-
-    // Filters Shows by year and genre
-    private List<Show> FilterShows (List<Show> videos,
-                                      ActionInputData action) {
-        List<Show> filtered_by_year = new ArrayList<>();
-        List<Show> filtered = new ArrayList<>();
-
-        List<String> year = action.getFilters().get(0);
-        List<String> genre = action.getFilters().get(1);
-
-        if (year.get(0) != null)
-            for (Show video : videos) {
-                if (year.get(0).equals(Integer.toString(video.getYear())))
-                    filtered_by_year.add(video);
-            }
-        else
-            filtered_by_year.addAll(videos);
-
-        if (genre != null)
-            for (Show video : filtered_by_year) {
-                if (video.getGenres().containsAll(genre))
-                    filtered.add(video);
-            }
-        else
-            filtered.addAll(filtered_by_year);
-
-        return filtered;
-    }
-
-    // Calculates average rating for an actor
-    private Double calculateAverage (Database database,
-                                     ActorInputData actor) {
-        ArrayList<String> filmography = actor.getFilmography();
-        List<Double> ratings;
-        double movie_average, show_average, season_average;
-        double average = 0.0;
-        int size = 0;
-        for (String title : filmography) {
-            movie_average = 0.0;
-            show_average = 0.0;
-            if (database.movieMap.get(title) != null) {
-                ratings = database.movieMap.get(title).getRatings();
-                for (double rating : ratings) {
-                    movie_average += rating;
-                }
-                if (movie_average != 0.0) {
-                    movie_average /= ratings.size();
-                    average += movie_average;
-                    size++;
-                }
-            }
-            else if (database.showMap.get(title) != null){
-                for (Season season : database.showMap.get(title).getSeasons()) {
-                    season_average = 0;
-                    ratings = season.getRatings();
-                    for (double rating : ratings) {
-                        season_average += rating;
-                    }
-                    if (season_average != 0.0) {
-                        season_average /= ratings.size();
-                    }
-                    show_average += season_average;
-                }
-                show_average /= database.showMap.get(title).getNumberofSeasons();
-                if (show_average != 0.0) {
-                    average += show_average;
-                    size++;
-                }
-            }
-        }
-        average /= size;
-        return average;
-    }
-
-    // Method to sort hashmap by values
-    private HashMap<String, Integer> sortByValueInteger(Map<String, Integer> map, String order) {
-        if (order.equals("asc")) {
-            LinkedHashMap<String, Integer> sortedMap = new LinkedHashMap<>();
-            map.entrySet().stream().sorted(Map.Entry.comparingByValue())
-                    .forEachOrdered(x -> sortedMap.put(x.getKey(), x.getValue()));
-            return sortedMap;
-        }
-        else if (order.equals("desc")) {
-            LinkedHashMap<String, Integer> reverseSortedMap = new LinkedHashMap<>();
-            map.entrySet().stream().sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
-                    .forEachOrdered(x -> reverseSortedMap.put(x.getKey(), x.getValue()));
-            return reverseSortedMap;
-        }
-        return (HashMap<String, Integer>) map;
-    }
-
-    private HashMap<String, Integer> sortByKeyInteger(Map<String, Integer> map, String order) {
-        if (order.equals("asc")) {
-            LinkedHashMap<String, Integer> sortedMap = new LinkedHashMap<>();
-            map.entrySet().stream().sorted(Map.Entry.comparingByKey())
-                    .forEachOrdered(x -> sortedMap.put(x.getKey(), x.getValue()));
-            return sortedMap;
-        }
-        else if (order.equals("desc")) {
-            LinkedHashMap<String, Integer> reverseSortedMap = new LinkedHashMap<>();
-            map.entrySet().stream().sorted(Map.Entry.comparingByKey(Comparator.reverseOrder()))
-                    .forEachOrdered(x -> reverseSortedMap.put(x.getKey(), x.getValue()));
-            return reverseSortedMap;
-        }
-        return (HashMap<String, Integer>) map;
-    }
-
-    private HashMap<String, Double> sortByValueDouble(Map<String, Double> map, String order) {
-        if (order.equals("asc")) {
-            LinkedHashMap<String, Double> sortedMap = new LinkedHashMap<>();
-            map.entrySet().stream().sorted(Map.Entry.comparingByValue())
-                    .forEachOrdered(x -> sortedMap.put(x.getKey(), x.getValue()));
-            return sortedMap;
-        }
-        else if (order.equals("desc")) {
-            LinkedHashMap<String, Double> reverseSortedMap = new LinkedHashMap<>();
-            map.entrySet().stream().sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
-                    .forEachOrdered(x -> reverseSortedMap.put(x.getKey(), x.getValue()));
-            return reverseSortedMap;
-        }
-        return (HashMap<String, Double>) map;
-    }
-
-    private HashMap<String, Double> sortByKeyDouble(Map<String, Double> map, String order) {
-        if (order.equals("asc")) {
-            LinkedHashMap<String, Double> sortedMap = new LinkedHashMap<>();
-            map.entrySet().stream().sorted(Map.Entry.comparingByKey())
-                    .forEachOrdered(x -> sortedMap.put(x.getKey(), x.getValue()));
-            return sortedMap;
-        }
-        else if (order.equals("desc")) {
-            LinkedHashMap<String, Double> reverseSortedMap = new LinkedHashMap<>();
-            map.entrySet().stream().sorted(Map.Entry.comparingByKey(Comparator.reverseOrder()))
-                    .forEachOrdered(x -> reverseSortedMap.put(x.getKey(), x.getValue()));
-            return reverseSortedMap;
-        }
-        return (HashMap<String, Double>) map;
     }
 }
